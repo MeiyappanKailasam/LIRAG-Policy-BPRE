@@ -1,0 +1,14 @@
+[
+  {
+    "query": "What is the income limit to apply for post-matric scholarship?",
+    "expected_sentence_contains": ["income", "2,50,000"]
+  },
+  {
+    "query": "Is Aadhaar mandatory for scholarship disbursal?",
+    "expected_sentence_contains": ["Aadhaar"]
+  },
+  {
+    "query": "Is hostel accommodation covered under this scheme?",
+    "expected_sentence_contains": ["hostel"]
+  }
+]

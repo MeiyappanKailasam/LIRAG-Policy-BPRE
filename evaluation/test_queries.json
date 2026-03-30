@@ -1,0 +1,27 @@
+[
+  {
+    "query": "What is the income limit to apply for post-matric scholarship?",
+    "relevant_clauses": ["1.8"]
+  },
+  {
+    "query": "Who is eligible for scholarships under this scheme?",
+    "relevant_clauses": ["1.8"]
+  },
+  {
+    "query": "Is hostel accommodation covered under this scheme?",
+    "relevant_clauses": ["1.8"]
+  },
+  {
+    "query": "Is Aadhaar mandatory for scholarship disbursal?",
+    "relevant_clauses": ["1.8"]
+  },
+  {
+    "query": "How many scholarships are available under the scheme?",
+    "relevant_clauses": ["13.3"]
+  },
+  {
+  "query": "Is Aadhaar mandatory for scholarship disbursal?",
+  "relevant_clauses": ["1.8"],
+  "expected_sentence_contains": "Aadhaar"
+}
+]

@@ -1,0 +1,117 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║           CENTRALIZED QUERY CONFIGURATION - QUICK START GUIDE              ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT'S NEW:
+  ✓ Single QUERY variable in config.py
+  ✓ All scripts automatically use this query
+  ✓ Change once, affects everything
+  ✓ Alternative queries pool for quick testing
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+QUICK START:
+
+1. CHANGE THE DEFAULT QUERY:
+   
+   Edit config.py (line 8):
+   
+   QUERY = "Your new question here?"
+
+2. RUN ANY SCRIPT - IT USES THE NEW QUERY:
+   
+   python compare_models.py          # Uses new QUERY
+   python -m src.agent               # Uses new QUERY  
+   python -m evaluation.evaluation   # No change (reads from JSON)
+
+3. USE ALTERNATIVE QUERIES IN CODE:
+   
+   from config import QUERY, ALTERNATIVE_QUERIES
+   
+   # Quick test different questions
+   for alt in ALTERNATIVE_QUERIES.values():
+       answer = policy_agent(alt)
+   
+   # Or specific ones
+   ans = policy_agent(ALTERNATIVE_QUERIES['disability_scholarships'])
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CURRENT CONFIGURATION:
+
+Default Query:
+  "What are the main eligibility requirements for scholarship applicants?"
+
+Alternative Queries Available:
+  - disability_scholarships
+  - income_limit
+  - fees_covered
+  - aadhaar_requirement
+  - hostel_accommodation
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+USAGE EXAMPLES:
+
+Example 1: Use default query in your script
+────────────────────────────────────────────
+from config import QUERY
+from src.agent import policy_agent
+
+answer, clauses = policy_agent(QUERY)
+print(answer['verified_answer'])
+
+
+Example 2: Test all alternatives
+────────────────────────────────────────────
+from config import ALTERNATIVE_QUERIES
+from src.agent import policy_agent
+
+results = {}
+for name, query in ALTERNATIVE_QUERIES.items():
+    ans, _ = policy_agent(query)
+    results[name] = ans['verified_answer']
+
+
+Example 3: Add custom queries
+────────────────────────────────────────────
+
+In config.py, add to ALTERNATIVE_QUERIES:
+
+ALTERNATIVE_QUERIES = {
+    "my_query": "What is your new question?",
+    "disability_scholarships": "...",
+    # ... rest
+}
+
+Then use:
+
+from config import ALTERNATIVE_QUERIES
+answer = policy_agent(ALTERNATIVE_QUERIES['my_query'])
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+AFFECTED FILES:
+
+These scripts now import QUERY from config.py:
+  ✓ compare_models.py          - Model comparison demo
+  ✓ src/agent.py               - Agent standalone test
+  ✓ demo_centralized_config.py - Usage examples
+  
+These read their own queries (JSON files):
+  ○ evaluation/evaluation.py           - From test_queries.json
+  ○ evaluation/sentence_evaluation.py - From test_queries_sentence.json
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BENEFITS:
+
+  1. Single Point of Control - Change query in one place
+  2. Consistency - All scripts use the same query automatically
+  3. Easy Testing - Switch between pre-defined alternatives instantly
+  4. Scalable - Add as many queries as needed to the pool
+  5. Modular - Clean separation of configuration from logic
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

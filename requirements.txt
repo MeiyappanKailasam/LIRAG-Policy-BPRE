@@ -1,0 +1,10 @@
+faiss-cpu==1.13.2
+google-generativeai
+numpy==2.4.2
+pypdf==6.7.1
+python-dotenv
+rank-bm25==0.2.2
+sentence-transformers==5.2.3
+transformers==5.2.0
+torch==2.10.0
+openai>=1.0.0
