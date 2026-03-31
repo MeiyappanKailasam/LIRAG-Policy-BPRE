@@ -108,7 +108,7 @@ def policy_agent(query, use_llm=True, use_baseline=False):
         clauses (list): Retrieved clause objects
     """
 
-    # ---- Retrieval + rerank ----
+# ---- Retrieval + rerank ----
     if use_baseline:
         retrieved = dense_search(query, k=10)
         reranked = retrieved
@@ -117,7 +117,7 @@ def policy_agent(query, use_llm=True, use_baseline=False):
         reranked = rerank(query, retrieved)
 
     clauses = reranked[:5]
-
+    
     if not clauses:
         return {
             "verified_answer": "Not specified in the policy document.",
@@ -127,7 +127,7 @@ def policy_agent(query, use_llm=True, use_baseline=False):
             "evidence": []
         }, []
 
-    # ---- Policy-aware filtering ----
+    # ---- Policy-aware filtering (applies keyword priority if any) ----
     clauses = policy_filter(query, clauses, top_k=5)
 
     if not clauses:

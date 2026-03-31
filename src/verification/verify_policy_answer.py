@@ -34,7 +34,7 @@ class PolicyVerifier:
         return cleaned[:max_chars].rstrip() + "..."
 
     @staticmethod
-    def _format_clauses(top_k_clauses: List[Dict[str, str]], max_clauses: int = 3, max_chars_per_clause: int = 300) -> str:
+    def _format_clauses(top_k_clauses: List[Dict[str, str]], max_clauses: int = 6, max_chars_per_clause: int = 600) -> str:
         parts = []
         for idx, clause in enumerate(top_k_clauses[:max_clauses], start=1):
             cid = clause.get("clause_id", "unknown")

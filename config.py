@@ -8,7 +8,7 @@ Change the QUERY variable here to evaluate all scripts with a different query.
 # ============================================================================
 # MAIN QUERY VARIABLE - Change this to test all scripts with a different query
 # ============================================================================
-QUERY = "What are the eligibility conditions and disbursal mechanisms for scholarships in India, and how do they differ between general merit-based scholarships and scholarships for students with disabilities?"
+QUERY = "What are the objectives and policy goals of government initiatives in education and scholarships, and how do they support inclusion and national development?"
 
 # ============================================================================
 # ALTERNATIVE QUERIES (examples for quick testing)
