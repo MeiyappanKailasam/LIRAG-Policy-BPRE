@@ -1,7 +1,8 @@
 import json
+import re
 from rank_bm25 import BM25Okapi
 def tokenize(text):
-    return text.lower().split() 
+    return re.findall(r"\w+", (text or "").lower())
 def search(query,k=5):
     with open("data/processed_clauses/clauses.json","r",encoding="utf-8") as f:
         clauses=json.load(f)

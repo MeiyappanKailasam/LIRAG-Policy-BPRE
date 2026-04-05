@@ -22,7 +22,7 @@ model=_load_embedding_model()
 def split_into_sentences(text):
     text=text.replace("\n"," ")
     return [s.strip() for s in text.split(".") if s.strip()]
-def generate_answer(query, clauses):
+def generate_answer(query, clauses, use_llm=False):
     """
     Given a user query and retrieved clause(s), extract the most relevant sentence(s) from the
     clause text that directly answer the query, without hallucination.
@@ -50,17 +50,17 @@ def generate_answer(query, clauses):
             best_clause_id = clause.get("clause_id", "Unknown")
 
     if best_sentence:
-        api_key = os.environ.get("GEMINI_API_KEY")
-        if genai and api_key:
-            try:
-                genai.configure(api_key=api_key)
-                llm = genai.GenerativeModel('gemini-2.5-flash')
-                prompt = build_prompt(query, clauses)
-                response = llm.generate_content(prompt)
-                return {"answer": response.text.strip(), "evidence": best_clause_id}
-            except Exception as e:
-                print(f"LLM Error: {e}. Falling back to extraction.")
-
+        if use_llm:
+            api_key = os.environ.get("GEMINI_API_KEY")
+            if genai and api_key:
+                try:
+                    genai.configure(api_key=api_key)
+                    llm = genai.GenerativeModel('gemini-2.5-flash')
+                    prompt = build_prompt(query, clauses)
+                    response = llm.generate_content(prompt)
+                    return {"answer": response.text.strip(), "evidence": best_clause_id}
+                except Exception as e:
+                    print(f"LLM Error: {e}. Falling back to extraction.")
         return {"answer": best_sentence, "evidence": best_clause_id}
 
     return {"answer": "Not specified in the policy document.", "evidence": None}
