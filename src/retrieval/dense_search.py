@@ -12,8 +12,8 @@ def _load_embedding_model():
 
 
 def search(query,k=5):
-    index=faiss.read_index("data/processed_clauses/dense_index")
-    with open("data/processed_clauses/clauses.json","r",encoding="utf-8") as f:
+    index=faiss.read_index("data/index/faiss.index")
+    with open("data/clauses.json","r",encoding="utf-8") as f:
         clauses=json.load(f)
     model=_load_embedding_model()
     q_emb=model.encode([query])

@@ -66,4 +66,4 @@ with open(CLAUSE_META_PATH, "wb") as f:
     pickle.dump(clauses, f)
 
 print("Sparse index and metadata saved")
-print("Index build complete ✅")
+print("Index build complete [SUCCESS]")

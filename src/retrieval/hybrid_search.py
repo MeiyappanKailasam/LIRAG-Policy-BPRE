@@ -71,7 +71,7 @@ def extract_aspects(query: str) -> List[str]:
         if not tokens:
             continue
 
-        phrase = " ".join(tokens[:5]).strip()
+        phrase = " ".join(tokens).strip()
         if len(phrase) < 3:
             continue
 
@@ -83,7 +83,7 @@ def extract_aspects(query: str) -> List[str]:
     if not aspects:
         tokens = [t for t in _tokenize(query) if t not in STOPWORDS]
         if tokens:
-            aspects = [" ".join(tokens[:6])]
+            aspects = [" ".join(tokens)]
 
     return aspects
 
@@ -324,9 +324,16 @@ def _select_diverse_by_aspect(ranked_clauses: List[Dict], k: int) -> List[Dict]:
     return selected
 
 
-def hybrid_search(query, k=10):
+def hybrid_search(query, k=10, dynamic_cutoff=True, cutoff_ratio=0.5):
     retrieved = retrieve(query, k=k)
     reranked = rerank(query, retrieved)
+    
+    # Dynamic Cut-off: Only keep clauses that score within a certain ratio of the top score
+    if dynamic_cutoff and reranked:
+        top_score = float(reranked[0].get("retrieval_score", 0.0))
+        threshold = top_score * cutoff_ratio
+        reranked = [c for c in reranked if float(c.get("retrieval_score", 0.0)) >= threshold]
+        
     final_clauses = _select_diverse_by_aspect(reranked, k=min(max(k, 5), 7))
     logger.info(
         "Final merged clauses: %s",

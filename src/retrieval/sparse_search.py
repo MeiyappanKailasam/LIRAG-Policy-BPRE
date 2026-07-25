@@ -3,11 +3,14 @@ import re
 from rank_bm25 import BM25Okapi
 def tokenize(text):
     return re.findall(r"\w+", (text or "").lower())
+import pickle
+
 def search(query,k=5):
-    with open("data/processed_clauses/clauses.json","r",encoding="utf-8") as f:
+    with open("data/clauses.json","r",encoding="utf-8") as f:
         clauses=json.load(f)
-    corpus=[tokenize(c["text"]) for c in clauses]
-    bm25=BM25Okapi(corpus)
+    with open("data/index/bm25.pkl","rb") as f:
+        bm25=pickle.load(f)
+    
     scores=bm25.get_scores(tokenize(query))
     ranked=sorted(
         range(len(scores)),

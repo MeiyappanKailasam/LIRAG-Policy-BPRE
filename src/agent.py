@@ -211,36 +211,70 @@ def policy_agent(query, use_llm=True, use_baseline=False, llm_only=False):
 
 
 # =========================
-# Standalone Test
+# Standalone Test with Metrics
 # =========================
 if __name__ == "__main__":
-    from config import QUERY as query
-
-    answer, evidence = policy_agent(
-        query,
-        use_llm=True,        # 🔥 LIRAG mode
-        use_baseline=False   # Hybrid retrieval
-    )
-
-    print("\nQUESTION:")
-    print(query)
-
-    print("\nVERIFIED ANSWER:")
-    print(answer["verified_answer"])
-    print(f"\nStatus: {'✅ FULLY SUPPORTED' if answer.get('is_supported', False) else '⚠️ PARTIALLY/UNSUPPORTED'} (confidence: {answer.get('confidence', 0.0):.2f})")
+    import json
+    import os
     
-    print("\nUNSUPPORTED PARTS:")
-    unsupported = answer.get('unsupported_parts', [])
-    if unsupported:
-        for part in unsupported:
-            print(f"  - {part}")
-    else:
-        print("  - None")
+    # Locate test queries
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    test_file = os.path.join(base_dir, "evaluation", "test_queries.json")
+    
+    try:
+        with open(test_file, "r", encoding="utf-8") as f:
+            tests = json.load(f)
+    except Exception as e:
+        print(f"Could not load {test_file}: {e}")
+        tests = []
 
-    print("\nSUPPORTING EVIDENCE:")
-    if answer["evidence"]:
-        for cid in answer["evidence"]:
-            print(f"- Clause ID: {cid}")
-    else:
-        print("- No evidence found")
+    total_precision = 0.0
+    total_recall = 0.0
+    n = 0
+
+    print("\n" + "="*60)
+    print("  AGENT EVALUATION RUN (WITH DYNAMIC THRESHOLD)")
+    print("="*60)
+
+    for t in tests:
+        query = t["query"]
+        # Ground truth matches the form "Policy_Name::CLAUSE_ID"
+        ground_truth = set(str(x) for x in t.get("relevant_clauses", []))
+        if not ground_truth:
+            continue
+
+        print(f"\nQUESTION: {query}")
+        # Run the full pipeline
+        answer, clauses = policy_agent(
+            query,
+            use_llm=True,        # 🔥 LIRAG mode
+            use_baseline=False   # Hybrid retrieval
+        )
+
+        # We construct the ID exactly as in the ground truth "policy_id::clause_id"
+        retrieved = set(f"{c.get('source_document')}::{c.get('clause_id')}" for c in clauses)
+        
+        correct = retrieved.intersection(ground_truth)
+        precision = len(correct) / len(retrieved) if retrieved else 0.0
+        recall = len(correct) / len(ground_truth) if ground_truth else 0.0
+
+        total_precision += precision
+        total_recall += recall
+        n += 1
+
+        safe_answer = answer.get('verified_answer', '').encode('ascii', 'ignore').decode('ascii')
+        print(f"VERIFIED ANSWER: {safe_answer}")
+        print(f"Status: {'[FULLY SUPPORTED]' if answer.get('is_supported', False) else '[PARTIALLY/UNSUPPORTED]'} (confidence: {answer.get('confidence', 0.0):.2f})")
+        print(f"Retrieved Evidence : {retrieved}")
+        print(f"Ground Truth       : {ground_truth}")
+        print(f"Precision: {precision:.2f}   Recall: {recall:.2f}")
+
+    if n > 0:
+        print("\n" + "="*60)
+        print("  FINAL AGENT METRICS")
+        print("="*60)
+        print(f"  Avg Precision : {total_precision/n:.2f}")
+        print(f"  Avg Recall    : {total_recall/n:.2f}")
+        print(f"  Queries tested: {n}")
+        print("="*60)
 
