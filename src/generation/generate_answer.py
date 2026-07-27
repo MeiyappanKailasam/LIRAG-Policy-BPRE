@@ -64,3 +64,26 @@ def generate_answer(query, clauses, use_llm=False):
         return {"answer": best_sentence, "evidence": best_clause_id}
 
     return {"answer": "Not specified in the policy document.", "evidence": None}
+
+
+def generate_hyde_document(query: str) -> str:
+    """Generates a hypothetical policy clause that answers the user's query."""
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not genai or not api_key:
+        return query
+        
+    try:
+        genai.configure(api_key=api_key)
+        llm = genai.GenerativeModel('gemini-2.5-flash')
+        prompt = (
+            "You are a government policy writer. Write a single, formal, and authoritative "
+            "hypothetical policy clause that perfectly answers the following query. "
+            "Write ONLY the clause text, without any conversational filler or introductions.\n\n"
+            f"Query: {query}"
+        )
+        response = llm.generate_content(prompt)
+        text = response.text.strip()
+        return text if text else query
+    except Exception as e:
+        print(f"HyDE LLM Error: {e}. Falling back to original query.")
+        return query

@@ -28,7 +28,11 @@ def _load_embedding_model():
 with open(CLAUSE_FILE, "r", encoding="utf-8") as f:
     clauses = json.load(f)
 
-texts = [c["text"] for c in clauses]
+texts = []
+for c in clauses:
+    policy_name = c.get('policy_id', '').replace('_', ' ')
+    clause_name = c.get('clause_id', '')
+    texts.append(f"Policy: {policy_name}. Section: {clause_name}. Content: {c['text']}")
 
 print(f"Loaded {len(clauses)} clauses")
 

@@ -7,9 +7,10 @@ from sentence_transformers import SentenceTransformer
 
 from src.retrieval.dense_search import search as dense_search
 from src.retrieval.sparse_search import search as sparse_search
-
+from src.generation.generate_answer import generate_hyde_document
 
 MODEL_NAME = "Sentence-transformers/all-MiniLM-L6-v2"
+
 _EMBED_MODEL = None
 logger = logging.getLogger(__name__)
 if not logger.handlers:
@@ -154,11 +155,20 @@ def _retrieve_single_query(query: str, k: int = 10) -> List[Dict]:
     """Hybrid single-query retrieval (dense + sparse + fusion)."""
     candidate_k = max(20, k * 4)
     variants = _query_variants(query)
+    
+    # HyDE: Generate hypothetical document for the primary variant
+    logger.info("Generating HyDE document for query: %s", variants[0])
+    hyde_doc = generate_hyde_document(variants[0])
 
     combined = {}
     for variant_idx, qv in enumerate(variants):
         variant_weight = 1.0 if variant_idx == 0 else 0.45
-        dense_results = dense_search(qv, candidate_k)
+        
+        # Dense search uses the hypothetical document for the primary variant
+        search_query = hyde_doc if variant_idx == 0 else qv
+        dense_results = dense_search(search_query, candidate_k)
+        
+        # Sparse search always uses exact terms from the query variant
         sparse_results = sparse_search(qv, candidate_k)
 
         for rank, clause in enumerate(dense_results, start=1):
@@ -216,15 +226,13 @@ def retrieve(query: str, k: int = 10) -> List[Dict]:
     logger.info("Extracted aspects: %s", aspects)
 
     merged = {}
-    per_aspect_k = 3
+    per_aspect_k = 15
     for aspect in aspects:
-        expanded_query = expand_aspect_query(aspect)
-        aspect_results = _retrieve_single_query(expanded_query, k=per_aspect_k)
+        aspect_results = _retrieve_single_query(aspect, k=per_aspect_k)
 
         logger.info(
-            "Aspect '%s' expanded as '%s' -> clauses: %s",
+            "Aspect '%s' -> clauses: %s",
             aspect,
-            expanded_query,
             [f"{r.get('policy_id', 'unknown')}::{r.get('clause_id', 'unknown')}" for r in aspect_results[:per_aspect_k]],
         )
 
@@ -252,6 +260,20 @@ def retrieve(query: str, k: int = 10) -> List[Dict]:
     return merged_list
 
 
+def _get_strict_intents(query: str) -> List[str]:
+    q = query.lower()
+    intents = []
+    if any(w in q for w in ["eligib", "qualif", "who can", "who are"]):
+        intents.append("ELIGIBILITY")
+    if any(w in q for w in ["benefit", "subsidy", "grant", "how much", "financial", "percentage", "assistance", "support", "fund", "reimbursement", "stipend", "aid", "amount", "limit"]):
+        intents.append("BENEFITS")
+    if any(w in q for w in ["apply", "process", "application", "how to"]):
+        intents.append("APPLICATION PROCESS")
+    if any(w in q for w in ["document", "proof", "certificate", "paperwork"]):
+        intents.append("DOCUMENTS REQUIRED")
+    return intents
+
+
 def rerank(query: str, clauses: List[Dict]) -> List[Dict]:
     if not clauses:
         return clauses
@@ -266,6 +288,8 @@ def rerank(query: str, clauses: List[Dict]) -> List[Dict]:
     lexical_norm = _normalize(lexical_raw)
     rrf_norm = _normalize(rrf_raw)
 
+    strict_intents = _get_strict_intents(query)
+
     scored = []
     for clause, text_vec in zip(clauses, text_vecs):
         semantic_score = _cosine_similarity(query_vec, text_vec)
@@ -275,7 +299,13 @@ def rerank(query: str, clauses: List[Dict]) -> List[Dict]:
         quality = _content_quality(clause.get("text", ""))
         aspect_bonus = float(clause.get("aspect_bonus", 0.0))
 
-        final_score = ((0.45 * semantic_score) + (0.35 * rrf_score) + (0.20 * lexical_score)) * quality + aspect_bonus
+        intent_penalty = 0.0
+        c_id = clause.get("clause_id")
+        if strict_intents:
+            if c_id not in strict_intents:
+                intent_penalty = -0.40  # Heavy penalty for mismatching the core intent
+
+        final_score = ((0.45 * semantic_score) + (0.35 * rrf_score) + (0.20 * lexical_score)) * quality + aspect_bonus + intent_penalty
         enriched = {
             **clause,
             "retrieval_score": final_score,
@@ -324,17 +354,22 @@ def _select_diverse_by_aspect(ranked_clauses: List[Dict], k: int) -> List[Dict]:
     return selected
 
 
-def hybrid_search(query, k=10, dynamic_cutoff=True, cutoff_ratio=0.5):
+def hybrid_search(query, k=10, dynamic_cutoff=True, cutoff_ratio=0.55):
     retrieved = retrieve(query, k=k)
     reranked = rerank(query, retrieved)
     
-    # Dynamic Cut-off: Only keep clauses that score within a certain ratio of the top score
     if dynamic_cutoff and reranked:
         top_score = float(reranked[0].get("retrieval_score", 0.0))
-        threshold = top_score * cutoff_ratio
-        reranked = [c for c in reranked if float(c.get("retrieval_score", 0.0)) >= threshold]
-        
-    final_clauses = _select_diverse_by_aspect(reranked, k=min(max(k, 5), 7))
+        # Protect against edge case where top_score is very close to 0
+        threshold = top_score * cutoff_ratio if top_score > 0.1 else 0.0
+        filtered_clauses = [c for c in reranked if float(c.get("retrieval_score", 0.0)) >= threshold]
+    else:
+        filtered_clauses = reranked
+
+    # Still ensure diversity, but don't artificially restrict to a tiny number if many passed the threshold
+    # We cap at 15 to avoid blowing up the LLM context completely
+    final_clauses = _select_diverse_by_aspect(filtered_clauses, k=min(len(filtered_clauses), 15))
+    
     logger.info(
         "Final merged clauses: %s",
         [

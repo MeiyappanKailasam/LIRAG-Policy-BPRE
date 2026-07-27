@@ -1,2 +1,25 @@
-
+# Environment
 .env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# ZIP archives (no need to commit compiled archives)
+src.zip
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
