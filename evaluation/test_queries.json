@@ -1,25 +1,89 @@
 [
   {
     "id": 1,
-    "query": "Are 8th grade students with parents who pay income tax eligible for the Pre Matric Scholarship?",
+    "query": "What is the stipend provided under the 15 Days Skill Up-gradation Training scheme?",
+    "relevant_clauses": [
+      "15_Days_Skill_Up_gradation_Training::BENEFITS",
+      "_Advance___High_Skill_Training__Component_of_the__Development_of_Industries__Scheme::BENEFITS"
+    ],
+    "type": "factual"
+  },
+  {
+    "id": 2,
+    "query": "Who is eligible to apply for the 15 Days Skill Up-gradation Training?",
+    "relevant_clauses": [
+      "15_Days_Skill_Up_gradation_Training::DETAILS",
+      "15_Days_Skill_Up_gradation_Training::ELIGIBILITY",
+      "_Advance___High_Skill_Training__Component_of_the__Development_of_Industries__Scheme::BENEFITS"
+    ],
+    "type": "factual"
+  },
+  {
+    "id": 3,
+    "query": "What is the financial assistance provided under the 25% Capital Investment Subsidy Scheme?",
+    "relevant_clauses": [
+      "25__Capital_Investment_Subsidy_Scheme::BENEFITS",
+      "_Capital_Investment_Subsidy__Physically_Handicapped_Persons__Ex_Servicemen__under__Motivation_of_Entrepreneurs_to_Start_Industries_and_Fiscal_Assistance_to_Industries_::BENEFITS",
+      "_Market_Development_Support_Assistance__under__Motivation_of_Entrepreneurs_to_Start_Industries_and_Fiscal_Assistance_to_Industries___Various_Incentives_::BENEFITS"
+    ],
+    "type": "factual"
+  },
+  {
+    "id": 4,
+    "query": "Are Micro & Small Enterprises registered with NSIC eligible for the Consortia Tender Marketing Scheme?",
+    "relevant_clauses": [
+      "Consortia___Tender_Marketing_Scheme::ELIGIBILITY"
+    ],
+    "type": "factual"
+  },
+  {
+    "id": 5,
+    "query": "What percentage of the training expenditure is given as subsidy under the Management Training Scheme by the District Industries Centre?",
+    "relevant_clauses": [
+      "_Management_Training__Component_of_the__Development_of_Industries__Scheme::BENEFITS"
+    ],
+    "type": "factual"
+  },
+  {
+    "id": 6,
+    "query": "Who is eligible for the Entrepreneurship Development Programme for Coir Industries?",
+    "relevant_clauses": [
+      "_Entrepreneurship_Development_Programme__Component_of_the__Development_of_Coir__Scheme::ELIGIBILITY",
+      "_Entrepreneurship_Development_Programme__Component_of_the__Development_of_Coir__Scheme::DETAILS"
+    ],
+    "type": "factual"
+  },
+  {
+    "id": 7,
+    "query": "What is the maximum risk coverage amount for accidental death under the AASRA Scheme?",
+    "relevant_clauses": [
+      "AASRA_Scheme::DETAILS"
+    ],
+    "type": "factual"
+  },
+  {
+    "id": 8,
+    "query": "Who is eligible to apply for the Pre-Matric Scholarship for Backward Class Students?",
     "relevant_clauses": [
       "Pre_Matric_Scholarship_for_Backward_Class_Students::ELIGIBILITY"
     ],
     "type": "factual"
   },
   {
-    "id": 2,
-    "query": "How much financial aid is given for funeral costs under the Garuda Scheme?",
+    "id": 9,
+    "query": "What is the maximum wage subsidy per annum provided under the Employment Incentive Scheme?",
     "relevant_clauses": [
-      "Garuda_Scheme_for_Funeral_Expense::BENEFITS"
+      "_Employment_Incentive__under__Motivation_of_Entrepreneurs_to_Start_Industries_and_Fiscal_Assistance_to_Industries_::BENEFITS",
+      "_Employment_Incentive__under__Motivation_of_Entrepreneurs_to_Start_Industries_and_Fiscal_Assistance_to_Industries_::DETAILS"
     ],
     "type": "factual"
   },
   {
-    "id": 3,
-    "query": "What is the maximum reimbursement limit for water conservation compliance under the West Bengal Textile Incentive Scheme?",
+    "id": 10,
+    "query": "Are Women Entrepreneurs eligible for the Capital Investment Subsidy and what is the maximum subsidy amount?",
     "relevant_clauses": [
-      "West_Bengal_Textile_Incentive_Scheme__Subsidy_for_Water_conservation__Environment_Compliance::BENEFITS"
+      "_Capital_Investment_Subsidy__SC_ST_Women_Entrepreneurs__Component_of_the__Motivation_of_Entrepreneurs_to_Start_Industries_and_Fiscal_Assistance_to_Industries__Scheme::BENEFITS",
+      "_Capital_Investment_Subsidy__SC_ST_Women_Entrepreneurs__Component_of_the__Motivation_of_Entrepreneurs_to_Start_Industries_and_Fiscal_Assistance_to_Industries__Scheme::ELIGIBILITY"
     ],
     "type": "factual"
   }
