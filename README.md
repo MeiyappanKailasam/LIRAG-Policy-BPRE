@@ -10,6 +10,15 @@ It features a robust 6-stage pipeline designed for high precision in legal and a
 5. **Evidence-Constrained Generation**: LLM generation with strict sentence-level clause citations
 6. **Answer Verification**: Dual-LLM architecture for hallucination guarding
 
+## What's New in v2
+
+The system was heavily upgraded from its v1 architecture to improve robustness and metric stability:
+- **Expanded Golden Benchmark:** Expanded the evaluation suite from 6 to 10 highly complex, multi-aspect queries targeting specific government schemes (e.g., SUPER 30, Powerloom MSME subsidies).
+- **Corrective Retrieval (CRAG):** Added a `ConfidenceEstimator` to mathematically score retrieval confidence using 4 signals (Top Score, Score Gap, Keyword Overlap, Aspect Coverage). Low confidence now autonomously triggers a corrective retrieval pass.
+- **HyDE & RRF:** Introduced Hypothetical Document Embeddings (HyDE) and Reciprocal Rank Fusion (RRF) to mathematically fuse the rankings of Dense (FAISS) and Sparse (BM25) retrievers.
+- **Dual-LLM Architecture:** Implemented a two-model setup separating the drafting phase (`gemini-2.5-flash`) from the strict verification phase (`llama-3.3-70b-versatile` via Groq), massively reducing hallucinations.
+- **Sentence-Level Citations:** Forced the Generator LLM to append explicit clause citations to *every single generated sentence* for extreme traceability.
+
 ## 1. End-to-End Flow
 
 Full process from raw PDFs to evaluated answers:
