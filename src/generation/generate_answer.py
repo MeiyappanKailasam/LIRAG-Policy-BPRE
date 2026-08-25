@@ -1,3 +1,18 @@
+# =============================================================================
+# src/generation/generate_answer.py
+# =============================================================================
+# LIRAG v2 — Extraction Baseline + HyDE Generator
+#
+# Two functions:
+#   generate_answer()      — Sentence-level extraction baseline using cosine
+#                            similarity between query and clause sentences.
+#                            Optionally calls Gemini for LLM-based generation.
+#   generate_hyde_document() — Hypothetical Document Embedding (HyDE). Asks
+#                              Gemini to write a hypothetical policy clause
+#                              that answers the query, used as a dense search
+#                              proxy to improve recall.
+# =============================================================================
+
 import os
 from dotenv import load_dotenv
 
@@ -11,16 +26,21 @@ except ImportError:
 from src.generation.prompt import build_prompt
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
-MODEL_NAME="Sentence-transformers/all-MiniLM-L6-v2"
+
+MODEL_NAME = "Sentence-transformers/all-MiniLM-L6-v2"
 
 
 def _load_embedding_model():
+    """Load the sentence transformer model for semantic similarity."""
     return SentenceTransformer(MODEL_NAME, local_files_only=True)
 
 
-model=_load_embedding_model()
+model = _load_embedding_model()
+
+
 def split_into_sentences(text):
-    text=text.replace("\n"," ")
+    """Split text into sentences on period boundaries."""
+    text = text.replace("\n", " ")
     return [s.strip() for s in text.split(".") if s.strip()]
 def generate_answer(query, clauses, use_llm=False):
     """

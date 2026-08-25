@@ -1,3 +1,19 @@
+# =============================================================================
+# src/retrieval/hybrid_search.py
+# =============================================================================
+# LIRAG v2 — Multi-Aspect Hybrid Retrieval with Dynamic Cutoff
+#
+# Implements a five-stage retrieval pipeline:
+#   1. Aspect Extraction   — Split the query into semantic sub-aspects.
+#   2. HyDE Generation     — Generate a hypothetical document for dense search.
+#   3. Hybrid Fusion       — Combine dense (FAISS) and sparse (BM25) results
+#                            using Reciprocal Rank Fusion (RRF).
+#   4. Semantic Reranking   — Score candidates via cosine similarity, lexical
+#                            overlap, RRF, and intent-based penalties.
+#   5. Dynamic Cutoff      — Retain only clauses within a configurable ratio
+#                            of the top retrieval score.
+# =============================================================================
+
 import logging
 import re
 from typing import Dict, List
@@ -8,6 +24,7 @@ from sentence_transformers import SentenceTransformer
 from src.retrieval.dense_search import search as dense_search
 from src.retrieval.sparse_search import search as sparse_search
 from src.generation.generate_answer import generate_hyde_document
+from config import DYNAMIC_CUTOFF_RATIO
 
 MODEL_NAME = "Sentence-transformers/all-MiniLM-L6-v2"
 
@@ -152,7 +169,12 @@ def _normalize(values: List[float]) -> List[float]:
 
 
 def _retrieve_single_query(query: str, k: int = 10) -> List[Dict]:
-    """Hybrid single-query retrieval (dense + sparse + fusion)."""
+    """Hybrid single-query retrieval (dense + sparse + RRF fusion).
+
+    Uses HyDE (Hypothetical Document Embedding) for the primary query
+    variant and combines dense (FAISS) and sparse (BM25) result lists
+    via Reciprocal Rank Fusion.
+    """
     candidate_k = max(20, k * 4)
     variants = _query_variants(query)
     
@@ -219,6 +241,12 @@ def _content_quality(text: str) -> float:
 
 
 def retrieve(query: str, k: int = 10) -> List[Dict]:
+    """Multi-aspect retrieval: extract aspects, retrieve per-aspect, merge.
+
+    Each aspect is independently retrieved via _retrieve_single_query(),
+    then results are merged with aspect-hit bonuses for clauses that
+    satisfy multiple query aspects simultaneously.
+    """
     aspects = extract_aspects(query)
     if not aspects:
         aspects = [query.strip().lower()]
@@ -275,6 +303,15 @@ def _get_strict_intents(query: str) -> List[str]:
 
 
 def rerank(query: str, clauses: List[Dict]) -> List[Dict]:
+    """Semantic reranking with intent-based penalty.
+
+    Scoring formula:
+        score = (0.45 * semantic + 0.35 * RRF + 0.20 * lexical) * quality
+                + aspect_bonus + intent_penalty
+
+    Intent penalty (-0.40) is applied to clauses whose section type
+    (e.g., BENEFITS, ELIGIBILITY) does not match the detected query intent.
+    """
     if not clauses:
         return clauses
 
@@ -321,6 +358,7 @@ def rerank(query: str, clauses: List[Dict]) -> List[Dict]:
 
 
 def _select_diverse_by_aspect(ranked_clauses: List[Dict], k: int) -> List[Dict]:
+    """Select up to k clauses, prioritizing aspect diversity over raw score."""
     if len(ranked_clauses) <= k:
         return ranked_clauses
 
@@ -354,13 +392,29 @@ def _select_diverse_by_aspect(ranked_clauses: List[Dict], k: int) -> List[Dict]:
     return selected
 
 
-def hybrid_search(query, k=10, dynamic_cutoff=True, cutoff_ratio=0.55):
+def hybrid_search(query, k=10, dynamic_cutoff=True, cutoff_ratio=None):
+    """End-to-end hybrid search: retrieve → rerank → dynamic cutoff.
+
+    Parameters
+    ----------
+    query         : User query string.
+    k             : Initial retrieval depth per aspect.
+    dynamic_cutoff: If True, apply score-based filtering after reranking.
+    cutoff_ratio  : Fraction of the top score used as the inclusion threshold.
+                    Defaults to DYNAMIC_CUTOFF_RATIO from config.py (0.80).
+
+    Returns
+    -------
+    List of clause dicts, sorted by retrieval_score descending.
+    """
+    if cutoff_ratio is None:
+        cutoff_ratio = DYNAMIC_CUTOFF_RATIO
+
     retrieved = retrieve(query, k=k)
     reranked = rerank(query, retrieved)
-    
+
     if dynamic_cutoff and reranked:
         top_score = float(reranked[0].get("retrieval_score", 0.0))
-        # Protect against edge case where top_score is very close to 0
         threshold = top_score * cutoff_ratio if top_score > 0.1 else 0.0
         filtered_clauses = [c for c in reranked if float(c.get("retrieval_score", 0.0)) >= threshold]
     else:
