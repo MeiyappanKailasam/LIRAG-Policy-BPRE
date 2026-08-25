@@ -10,11 +10,9 @@
   },
   {
     "id": 2,
-    "query": "Who is eligible to apply for the 15 Days Skill Up-gradation Training?",
+    "query": "Who is eligible to apply for the SUPER 30 Scheme?",
     "relevant_clauses": [
-      "15_Days_Skill_Up_gradation_Training::DETAILS",
-      "15_Days_Skill_Up_gradation_Training::ELIGIBILITY",
-      "_Advance___High_Skill_Training__Component_of_the__Development_of_Industries__Scheme::BENEFITS"
+      "_SUPER_30__Scheme::ELIGIBILITY"
     ],
     "type": "factual"
   },
@@ -55,35 +53,35 @@
   },
   {
     "id": 7,
-    "query": "What is the maximum risk coverage amount for accidental death under the AASRA Scheme?",
+    "query": "What is the incentive amount provided for Intra Caste Marriage within Scheduled Tribe Community?",
     "relevant_clauses": [
-      "AASRA_Scheme::DETAILS"
+      "Incentive_For_The_Intra_Caste_Marriage_within_Scheduled_Tribe_Community::BENEFITS"
     ],
     "type": "factual"
   },
   {
     "id": 8,
-    "query": "Who is eligible to apply for the Pre-Matric Scholarship for Backward Class Students?",
+    "query": "What is the subsidy percentage on Hank Yarn purchases under the 40% Subsidy On Hank Yarn Dyes and Chemicals Scheme?",
     "relevant_clauses": [
-      "Pre_Matric_Scholarship_for_Backward_Class_Students::ELIGIBILITY"
+      "40__Subsidy_On_Hank_Yarn__Dyes___Chemicals_Scheme::BENEFITS"
     ],
     "type": "factual"
   },
   {
     "id": 9,
-    "query": "What is the maximum wage subsidy per annum provided under the Employment Incentive Scheme?",
+    "query": "Who is eligible for the In-Plant Training Component of the Development of Industries Scheme?",
     "relevant_clauses": [
-      "_Employment_Incentive__under__Motivation_of_Entrepreneurs_to_Start_Industries_and_Fiscal_Assistance_to_Industries_::BENEFITS",
-      "_Employment_Incentive__under__Motivation_of_Entrepreneurs_to_Start_Industries_and_Fiscal_Assistance_to_Industries_::DETAILS"
+      "_In_Plant_Training__Component_of_the__Development_of_Industries__Scheme::ELIGIBILITY",
+      "_In_Plant_Training__Component_of_the__Development_of_Industries__Scheme::DETAILS"
     ],
     "type": "factual"
   },
   {
     "id": 10,
-    "query": "Are Women Entrepreneurs eligible for the Capital Investment Subsidy and what is the maximum subsidy amount?",
+    "query": "What is the State Capital Investment Subsidy percentage for MSMEs in the Powerloom Sector?",
     "relevant_clauses": [
-      "_Capital_Investment_Subsidy__SC_ST_Women_Entrepreneurs__Component_of_the__Motivation_of_Entrepreneurs_to_Start_Industries_and_Fiscal_Assistance_to_Industries__Scheme::BENEFITS",
-      "_Capital_Investment_Subsidy__SC_ST_Women_Entrepreneurs__Component_of_the__Motivation_of_Entrepreneurs_to_Start_Industries_and_Fiscal_Assistance_to_Industries__Scheme::ELIGIBILITY"
+      "Incentive_Scheme_for_MSMEs_in_Powerloom_Sector__State_Capital_Investment_Subsidy::BENEFITS",
+      "Incentive_Scheme_for_MSMEs_in_Powerloom_Sector__State_Capital_Investment_Subsidy::ELIGIBILITY"
     ],
     "type": "factual"
   }

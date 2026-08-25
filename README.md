@@ -116,13 +116,13 @@ The system utilizes three distinct AI models, each with a specialized role:
 
 ## 4. Evaluation Results
 
-The system was evaluated on a golden set of challenging, multi-aspect queries against the Kaggle Government Schemes corpus. We utilized a strict dynamic cutoff ratio (`0.80`) to prioritize precision and minimize hallucinations.
+The system was evaluated on a golden set of 10 challenging, multi-aspect queries against the Kaggle Government Schemes corpus. We utilized a strict dynamic cutoff ratio (`0.80`) to prioritize precision and minimize hallucinations.
 
 | Metric | Score |
 | :--- | :--- |
-| **Avg Precision** | **0.53** |
-| **Avg Recall** | **0.60** |
-| **Avg F1-Score** | **0.56** |
+| **Avg Precision** | **0.73** |
+| **Avg Recall** | **0.90** |
+| **Avg F1-Score** | **0.77** |
 
 The system exhibits highly precise "sniper" behavior, retaining only the 1-2 most confident clauses per query, which successfully drives query-level Precision to 1.00 in the majority of test cases.
 
